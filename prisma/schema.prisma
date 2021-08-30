@@ -17,8 +17,10 @@ model User_Address {
 }
 
 model User {
-  uuid    String        @id
-  email   String        @unique
-  name    String
-  address User_Address?
+  uuid      String        @id
+  email     String        @unique
+  name      String
+  address   User_Address?
+  createdBy String?
+  updateBy  String?
 }

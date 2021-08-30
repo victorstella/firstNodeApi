@@ -5,10 +5,11 @@ const prisma = new PrismaClient()
 
 interface IRequest {
   newRecord: User & { address: User_Address }
+  loggedUser: string
 }
 
 export class CreateUserService {
-  async run({ newRecord }: IRequest) {
+  async run({ newRecord, loggedUser }: IRequest) {
     const { uuid, email, name, address } = newRecord
     const user = await prisma.user.create({
       data: {
@@ -19,7 +20,8 @@ export class CreateUserService {
           create: {
             user_address: address!.user_address
           }
-        }
+        },
+        createdBy: loggedUser,
       },
       include: {
         address: true
