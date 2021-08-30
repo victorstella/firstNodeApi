@@ -3,17 +3,18 @@ import { PrismaClient } from "@prisma/client"
 const prisma = new PrismaClient()
 
 interface IRequest {
-  uuid: string,
+  uuid: string
   newData: JSON
+  loggedUser: string
 }
 
 export class UpdateUserService {
-  async run({ uuid, newData }: IRequest) {
+  async run({ uuid, newData, loggedUser }: IRequest) {
     const newRecord = await prisma.user.update({
       where: {
         uuid
       },
-      data: { ...newData }
+      data: { ...newData, updateBy: loggedUser }
     })
     return newRecord
   }
