@@ -1,7 +1,5 @@
 import { User_Address, User } from "@prisma/client"
-import { PrismaClient } from "@prisma/client"
-
-const prisma = new PrismaClient()
+import prisma from "../../configs/prisma"
 
 interface IRequest {
   newRecord: User & { address: User_Address }

@@ -1,6 +1,5 @@
-import { PrismaClient } from "@prisma/client"
+import prisma from "../../configs/prisma"
 
-const prisma = new PrismaClient()
 
 interface IRequest {
   uuid: string

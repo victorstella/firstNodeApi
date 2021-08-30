@@ -9,7 +9,7 @@ export const app = express()
 
 app
   .use(rateLimiterRedisMiddleware)
-  // bom seu seja depois do rate limiter
+  // cors depois do rate limiter
   .use(cors())
   .use(json())
   .use(routes)
