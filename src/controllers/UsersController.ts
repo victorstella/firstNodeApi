@@ -4,7 +4,6 @@ import { GetUserService } from "../services/users/GetUserService"
 import { UpdateUserService } from "../services/users/UpdateUserService"
 import { DeleteUserService } from "../services/users/DeleteUserService"
 import redis from "../configs/redis"
-import prisma from "../configs/prisma"
 
 const createUserService = new CreateUserService()
 const getUserService = new GetUserService()
@@ -16,23 +15,16 @@ class UsersController {
   async create(req: Request, res: Response) {
     // alimentado pelo middleware
     const newRecord = req.body
-    const loggedUser = req.user.uuid
-    const newUser = await createUserService.run({ newRecord, loggedUser })
+    const loggedUserId = req.user.uuid
+    const newUser = await createUserService.run({ newRecord, loggedUserId })
+    await redis.del('users-list')
 
-    // invalida o cache (deleta a lista do Redis)
-    let client = await redis.get(`${loggedUser}`)
-    if (!client) {
-      const rows = await prisma.$executeRaw(`select * from User where id=? limit 1`, [loggedUser])
-      client = rows[0]
-      await redis.set(`${loggedUser}`, JSON.stringify(client))
-      console.log(client)
-    }
-    else
-      console.log(JSON.parse(client).nome);
-    console.timeEnd("redissave");
+    res.json(newUser)
 
-    // await redis.del('list-users')
-    return res.json(newUser)
+    const users = await getUserService.runIndex()
+    await redis.set('users-list', JSON.stringify(users))
+
+    return
   }
 
   async show(req: Request, res: Response) {
@@ -42,21 +34,21 @@ class UsersController {
   }
 
   async index(req: Request, res: Response) {
-    const cachedUsersList = await redis.get('list-users')
+    const cachedUsersList = await redis.get('users-list')
     if (cachedUsersList) {
       return res.json(JSON.parse(cachedUsersList))
     }
     const users = await getUserService.runIndex()
-    await redis.set('list-users', JSON.stringify(users))
+    await redis.set('users-list', JSON.stringify(users))
     return res.json(users)
   }
 
   async update(req: Request, res: Response) {
     const uuid = req.params.uuid
     const newData = req.body
-    const upUser = await patchUserService.run({ uuid, newData, loggedUser: req.user.uuid })
+    const upUser = await patchUserService.run({ uuid, newData, loggedUserId: req.user.uuid })
     // invalida o cache (deleta a lista do Redis)
-    await redis.del('list-users')
+    await redis.del('users-list')
     return res.json(upUser)
   }
 
@@ -64,7 +56,7 @@ class UsersController {
     const uuid = req.params.uuid
     const delUser = await deleteUserService.run({ uuid })
     // invalida o cache (deleta a lista do Redis)
-    await redis.del('list-users')
+    await redis.del('users-list')
     return res.json(delUser)
   }
 }
