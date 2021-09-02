@@ -5,4 +5,4 @@
 </br>🔹 Prisma Object Relational Mapper to manage the MySQL database through Typescript functions;
 </br>🔹 Socket.io to connect to a front-end app for real-time communication.
 </br></br>
-<i>Note: You must have Node.js, MySQL, and Redis installed on your machine, and I strongly recommend using Docker to run both storage tools.</i>
+<i>Note: You must have Node.js, MySQL and Redis installed on your machine, and I strongly recommend using Docker to run both storage tools.</i>
